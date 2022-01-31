@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Stripe Subscription</title>
+    <script src="https://js.stripe.com/v3/"></script>
+    <link href="https://github.com/PrettyPrinted/youtube_video_code/blob/master/2020/06/12/Accepting%20Payments%20in%20Flask%20Using%20Stripe%20Checkout%20%5B2020%5D/flask_stripe/static/narrow-jumbotron.css" rel="stylesheet" type="text/css">
+    <link href="https://github.com/PrettyPrinted/youtube_video_code/blob/master/2020/06/12/Accepting%20Payments%20in%20Flask%20Using%20Stripe%20Checkout%20%5B2020%5D/flask_stripe/static/bootstrap.min.css" rel="stylesheet" type="text/css">
+<link href="https://stripe-samples.github.io/developer-office-hours/demo.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+    <div id="main">
+      <div id="container">
+        <div id="panel">
+             <br><br>
+          <h1>Products Available</h1>
+            <br><br><br>
+           <button id="checkout-premium">Subscribe Premium</button> <br><br><br>
+            <button id="checkout-basic">Subscribe Basic</button><br>
+        </div>
+      </div>
+    </div>
+
+<script charset="utf-8">
+    var createCheckoutSession = function(priceId) {
+    return fetch("/create-checkout-session", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        priceId: priceId
+      })
+    }).then(function(result) {
+      return result.json();
+    });
+  };
+
+const PREMIUM_PRICE_ID = "price_1KI9o9SAOUeH5vX2VOKLsi0G";
+const BASIC_PRICE_ID = "price_1KI9n1SAOUeH5vX2J6FRbxWe";
+const stripe = Stripe("pk_test_51KI9haSAOUeH5vX2Cg1aMbrlN24uf6P0HXLAG0mfoFroTJlKCzc5W2P03YGWM9SHKx3tz16eryKVXKMKkHHJs4fV00Rna9EJrE");
+
+document.addEventListener("DOMContentLoaded", function(event) {
+    document
+    .getElementById("checkout-premium")
+    .addEventListener("click", function(evt) {
+        createCheckoutSession(PREMIUM_PRICE_ID).then(function(data) {
+            stripe
+                .redirectToCheckout({
+                    sessionId: data.sessionId
+                });
+            });
+        });
+
+    document
+    .getElementById("checkout-basic")
+    .addEventListener("click", function(evt) {
+        createCheckoutSession(BASIC_PRICE_ID).then(function(data) {
+            stripe
+                .redirectToCheckout({
+                    sessionId: data.sessionId
+                });
+            });
+        });
+
+    const billingButton = document.getElementById("manage-billing");
+    if (billingButton) {
+        billingButton.addEventListener("click", function(evt) {
+        fetch("/create-portal-session", {
+            method: "POST"
+        })
+            .then(function(response) {
+                return response.json()
+            })
+            .then(function(data) {
+                window.location.href = data.url;
+            });
+        })
+    }
+});
+
+</script>
+
+</body>
+</html>
